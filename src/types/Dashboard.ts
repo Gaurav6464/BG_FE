@@ -31,6 +31,7 @@ export type MonthlyUserData = ChartData & {
 };
 
 export type StatCard = {
+  change: any;
   title: string;
   value: number;
   icon: React.ComponentType<{ className?: string }>;

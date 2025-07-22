@@ -1,21 +1,25 @@
-import  { useState } from 'react';
-import { ChevronDown, LogOut } from 'lucide-react';
-import useUserDetails from '../../hooks/useUserDetails';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { ChevronDown, LogOut } from "lucide-react";
+import useUserDetails from "../../hooks/useUserDetails";
+import { useNavigate } from "react-router-dom";
+import ManageWidgetsDrawer from "../dashboardwidgets/ManageWidgetsDrawer";
 
-const Navbar:React.FC = () => {
+
+const Navbar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const navigate = useNavigate()
+  const [isOpen, setIsOpen] = useState(false)
+  const navigate = useNavigate();
 
   const { data, isLoading, isError } = useUserDetails();
+
 
   if (isLoading) return <p>Loading user...</p>;
   if (isError || !data) return <p>Failed to load user</p>;
 
-  const logout =()=>{
-    localStorage.removeItem("isLogin")
-    navigate("/login")
-  }
+  const logout = () => {
+    localStorage.removeItem("isLogin");
+    navigate("/login");
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex items-center justify-between">
@@ -27,6 +31,13 @@ const Navbar:React.FC = () => {
 
       {/* Right side - User Profile */}
       <div className="flex items-center gap-4">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium border border-blue-600 text-blue-600 rounded-md shadow-sm hover:bg-blue-50 hover:shadow-md transition"
+        >
+          <span className="text-lg">🎛️</span>
+          Manage Widgets
+        </button>
 
         {/* User Profile Dropdown */}
         <div className="relative">
@@ -34,9 +45,9 @@ const Navbar:React.FC = () => {
             onClick={() => setShowDropdown(!showDropdown)}
             className="flex items-center gap-2 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors"
           >
-<div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-  {data.user.fullName.split(" ")[0].charAt(0).toUpperCase()}
-</div>
+            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+              {data.user.fullName.split(" ")[0].charAt(0).toUpperCase()}
+            </div>
 
             <ChevronDown className="w-4 h-4 text-gray-500" />
           </button>
@@ -52,7 +63,7 @@ const Navbar:React.FC = () => {
                 <button
                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                   onClick={() => {
-                   logout();
+                    logout();
                     setShowDropdown(false);
                   }}
                 >
@@ -67,11 +78,13 @@ const Navbar:React.FC = () => {
 
       {/* Click outside to close dropdown */}
       {showDropdown && (
-        <div 
-          className="fixed inset-0 z-40" 
+        <div
+          className="fixed inset-0 z-40"
           onClick={() => setShowDropdown(false)}
         />
       )}
+
+      <ManageWidgetsDrawer isOpen={isOpen} setIsOpen={setIsOpen}/>
     </header>
   );
 };

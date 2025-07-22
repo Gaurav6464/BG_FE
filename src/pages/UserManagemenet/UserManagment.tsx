@@ -37,6 +37,7 @@ const UserManagementPage: React.FC = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["users", queryParams],
     queryFn: () => UserService.getAll(queryParams),
+     placeholderData: (previousData) => previousData, // 👈 prevent flicker
   });
 
   const addOrUpdateUser = useMutation({

@@ -1,8 +1,11 @@
 import AppRoutes from "./routes/Routes";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // Don't forget this!
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App: React.FC = () => {
+
+
+
   return (
     <>
       <AppRoutes />

@@ -51,6 +51,7 @@ const Events = () => {
         city: cityFilter,
         isOnline: isOnlineFilter === "" ? undefined : isOnlineFilter === "true",
       }),
+       placeholderData: (previousData) => previousData, // 👈 prevent flicker
   });
 
   const getPaginationNumbers = () => {

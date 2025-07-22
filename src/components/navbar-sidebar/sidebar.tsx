@@ -16,7 +16,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+    { icon: LayoutDashboard, label: "Dashboard", path: "/" },
     { icon: Users, label: "User Management", path: "/user-management" },
     { icon: Calendar, label: "Events", path: "/events" },
     // { icon: ExternalLink, label: "External Resources", path: "/external-resources" },
@@ -47,7 +47,7 @@ const Sidebar: React.FC = () => {
         <ul className="space-y-1">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
-            const isActive = location.pathname.startsWith(item.path);
+            const isActive = location.pathname ===item.path;
 
             return (
               <li key={index}>

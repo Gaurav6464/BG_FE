@@ -5,7 +5,7 @@ import Events from "../pages/Events/Events";
 
 const PrivateRoutes = (
   <>
-    <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/" element={<Dashboard />} />
     <Route path="/user-management" element={<UserManagment />} />
     <Route path="/events" element={<Events />} />
 

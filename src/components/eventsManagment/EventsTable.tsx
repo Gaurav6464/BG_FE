@@ -1,104 +1,165 @@
-import React, { useRef, useEffect, useCallback, useState } from "react";
-import { Search, ChevronDown, ChevronUp, Edit2, Trash2, X } from "lucide-react";
-import { FiFilter } from "react-icons/fi";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+
 import { debounce } from "lodash";
+
+import { FiFilter } from "react-icons/fi";
+
 import type { Event } from "../../types/event.type";
+
+import { ChevronDown, ChevronUp, Edit2, Trash2 } from "lucide-react";
+
 import StatusWrapper from "../reuseable/StatusWrapper";
+
 import { useCheckRoleAccess } from "../../hooks/useCheckRoleAccess";
 
 type Props = {
   events: Event[];
+
   statusFilter: string;
+
   onStatusChange: (status: string) => void;
+
   typeFilter: string;
+
   onTypeChange: (type: string) => void;
+
   cityFilter: string;
+
   onCityChange: any;
+
   searchTerm: string;
+
   setSearchTerm: (val: string) => void;
+
   isOnlineFilter: string;
+
   onIsOnlineChange: (status: string) => void;
+
   sortField: any;
+
   sortDirection: string;
+
   onSort: (field: string) => void;
+
   currentPage: number;
+
   totalPages: number;
+
   itemsPerPage: number;
+
   setItemsPerPage: (val: number) => void;
+
   setCurrentPage: (val: number) => void;
+
   getPaginationNumbers: () => (number | string)[];
+
   isLoading: boolean;
+
   fetchEventError: any;
-  onAction:any;
-  eventFilters:any;
+
+  onAction: any;
+
+  eventFilters: any;
 };
 
 const statusTabs = ["upcoming", "ongoing", "completed"];
 
 const EventManagementTable: React.FC<Props> = ({
   events,
+
   statusFilter,
+
   onStatusChange,
+
   typeFilter,
+
   onTypeChange,
+
   cityFilter,
+
   onCityChange,
+
   isOnlineFilter,
+
   onIsOnlineChange,
+
   searchTerm,
+
   setSearchTerm,
+
   sortField,
+
   sortDirection,
+
   onSort,
+
   currentPage,
+
   totalPages,
+
   itemsPerPage,
+
   setItemsPerPage,
+
   setCurrentPage,
+
   getPaginationNumbers,
+
   isLoading,
+
   fetchEventError,
+
   onAction,
-  eventFilters
+
+  eventFilters,
 }) => {
   const [searchInput, setSearchInput] = useState(searchTerm);
-  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
-  const [showCityDropdown, setShowCityDropdown] = useState(false);
-  const [showOnlineDropdown, setShowOnlineDropdown] = useState(false);
-  const {hasAccess , loading ,error} = useCheckRoleAccess()
 
-  const typeRef = useRef<HTMLDivElement>(null);
-  const cityRef = useRef<HTMLDivElement>(null);
-  const onlineRef = useRef<HTMLDivElement>(null);
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+
+  const [showOnlineDropdown, setShowOnlineDropdown] = useState(false);
+
+  const { hasAccess, loading, error } = useCheckRoleAccess();
+
+  const typeRef = useRef(null);
+
+  const cityRef = useRef(null);
+
+  const onlineRef = useRef(null);
 
   const debouncedSearch = useCallback(
     debounce((val: string) => setSearchTerm(val), 500),
-    [setSearchTerm] // Added setSearchTerm to dependencies
+
+    []
   );
 
   useEffect(() => {
     debouncedSearch(searchInput);
-  }, [searchInput, debouncedSearch]); // Added debouncedSearch to dependencies
+  }, [searchInput]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (typeRef.current && !typeRef.current.contains(e.target as Node))
+      if (typeRef.current && !(typeRef.current as any).contains(e.target))
         setShowTypeDropdown(false);
-      if (cityRef.current && !cityRef.current.contains(e.target as Node))
+
+      if (cityRef.current && !(cityRef.current as any).contains(e.target))
         setShowCityDropdown(false);
-      if (onlineRef.current && !onlineRef.current.contains(e.target as Node))
+
+      if (onlineRef.current && !(onlineRef.current as any).contains(e.target))
         setShowOnlineDropdown(false);
     };
+
     document.addEventListener("mousedown", handler);
+
     return () => document.removeEventListener("mousedown", handler);
   }, []);
-
-  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
   const renderCheck = (isSelected: boolean) =>
     isSelected ? (
       <svg
-        className="w-4 h-4 text-indigo-600" // Changed color to indigo for consistency
+        className="w-4 h-4 text-blue-600"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
@@ -109,274 +170,259 @@ const EventManagementTable: React.FC<Props> = ({
     ) : null;
 
   return (
-    <StatusWrapper loading={isLoading || loading} error={fetchEventError || error}>
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 font-inter antialiased">
-        {/* Tabs for Status Filter */}
-        <div className="flex gap-4 px-4 pt-4 border-b border-gray-100 overflow-x-auto whitespace-nowrap">
+    <StatusWrapper
+      loading={isLoading || loading}
+      error={fetchEventError || error}
+    >
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        {/* Tabs */}
+
+        <div className="flex gap-6 px-4 pt-4 border-b">
           {statusTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => onStatusChange(tab)}
-              className={`pb-3 border-b-2 text-sm font-medium capitalize transition-colors duration-200
-                ${statusFilter === tab
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300"
-                }`}
+              className={`pb-2 border-b-2 text-sm font-medium capitalize ${
+                statusFilter === tab
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-600"
+              }`}
             >
               {tab}
             </button>
           ))}
         </div>
 
-        {/* Search and Filters */}
-        <div className="p-4 border-b border-gray-100 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full sm:w-1/2 lg:w-1/3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search by event name..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-800 placeholder-gray-400"
-            />
-            {searchInput && (
-              <X
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5 cursor-pointer hover:text-gray-700 transition-colors duration-200"
-                onClick={() => {
-                  setSearchInput("");
-                  setSearchTerm("");
-                }}
-              />
-            )}
-          </div>
+        {/* Search */}
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Type Filter Dropdown */}
-            <div className="relative" ref={typeRef}>
-              <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200
-                            ${typeFilter ? "bg-indigo-500 text-white border-indigo-500 shadow-md" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"}`}
-                onClick={() => {
-                  setShowTypeDropdown(!showTypeDropdown);
-                  setShowCityDropdown(false);
-                  setShowOnlineDropdown(false);
-                }}
-              >
-                <FiFilter className={`${typeFilter ? "text-white" : "text-gray-500"}`} />
-                <span>{typeFilter ? `Type: ${cap(typeFilter)}` : "Filter by Type"}</span>
-                {showTypeDropdown ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              {showTypeDropdown && (
-                <div className="absolute z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg text-sm w-40 max-h-60 overflow-y-auto">
-                  {["All", ...(eventFilters.types || [])].map((type) => (
-                    <div
-                      key={type}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-800"
-                      onMouseDown={() => { // Use onMouseDown to prevent dropdown closing before click registers
-                        onTypeChange(type === "All" ? "" : type);
-                        setShowTypeDropdown(false);
-                      }}
-                    >
-                      <span>{cap(type)}</span>
-                      {type !== "All" && renderCheck(typeFilter === type)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* City Filter Dropdown */}
-            <div className="relative" ref={cityRef}>
-              <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200
-                            ${cityFilter ? "bg-indigo-500 text-white border-indigo-500 shadow-md" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"}`}
-                onClick={() => {
-                  setShowCityDropdown(!showCityDropdown);
-                  setShowTypeDropdown(false);
-                  setShowOnlineDropdown(false);
-                }}
-              >
-                <FiFilter className={`${cityFilter ? "text-white" : "text-gray-500"}`} />
-                <span>{cityFilter ? `City: ${cap(cityFilter)}` : "Filter by City"}</span>
-                {showCityDropdown ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              {showCityDropdown && (
-                <div className="absolute z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg text-sm w-40 max-h-60 overflow-y-auto">
-                  {["All", ...(eventFilters.cities || [])].map((city) => (
-                    <div
-                      key={city}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-800"
-                      onMouseDown={() => {
-                        onCityChange(city === "All" ? "" : city);
-                        setShowCityDropdown(false);
-                      }}
-                    >
-                      <span>{cap(city)}</span>
-                      {city !== "All" && renderCheck(cityFilter === city)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Online Filter Dropdown */}
-            <div className="relative" ref={onlineRef}>
-              <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200
-                            ${isOnlineFilter ? "bg-indigo-500 text-white border-indigo-500 shadow-md" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"}`}
-                onClick={() => {
-                  setShowOnlineDropdown(!showOnlineDropdown);
-                  setShowTypeDropdown(false);
-                  setShowCityDropdown(false);
-                }}
-              >
-                <FiFilter className={`${isOnlineFilter ? "text-white" : "text-gray-500"}`} />
-                <span>{isOnlineFilter === "true" ? "Online" : isOnlineFilter === "false" ? "Offline" : "Filter by Online"}</span>
-                {showOnlineDropdown ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              {showOnlineDropdown && (
-                <div className="absolute z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg text-sm w-40 max-h-60 overflow-y-auto">
-                  {["All", "true", "false"].map((val) => (
-                    <div
-                      key={val}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-800"
-                      onMouseDown={() => {
-                        onIsOnlineChange(val === "All" ? "" : val);
-                        setShowOnlineDropdown(false);
-                      }}
-                    >
-                      <span>
-                        {val === "All" ? "All" : val === "true" ? "Yes" : "No"}
-                      </span>
-                      {val !== "All" && renderCheck(isOnlineFilter === val)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {(typeFilter || cityFilter || isOnlineFilter) && (
-              <button
-                className="px-4 py-2 rounded-lg border border-red-300 text-red-600 bg-red-50 hover:bg-red-100 transition-colors duration-200 flex items-center gap-1"
-                onClick={() => {
-                  onTypeChange("");
-                  onCityChange("");
-                  onIsOnlineChange("");
-                }}
-              >
-                <X className="w-4 h-4" /> Clear Filters
-              </button>
-            )}
-          </div>
+        <div className="p-4 border-b">
+          <input
+            type="text"
+            placeholder="Search by name"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto min-h-[300px] rounded-lg border border-gray-100">
-          <table className="w-full table-auto">
-            <thead className="bg-gray-50 border-b border-gray-200">
+
+        <div className="overflow-x-auto min-h-[300px]">
+          <table className="w-full">
+            <thead className="bg-gray-50">
               <tr>
                 <th
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer select-none"
+                  className="px-4 py-3 text-left text-xs text-gray-500 uppercase cursor-pointer"
                   onClick={() => onSort("name")}
                 >
-                  <div className="flex items-center gap-1">
+                  <div className="flex">
                     Name
                     {sortField === "name" &&
                       (sortDirection === "asc" ? (
-                        <ChevronUp className="w-4 h-4 text-indigo-600" />
+                        <ChevronUp className="w-4 h-4" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-indigo-600" />
+                        <ChevronDown className="w-4 h-4" />
                       ))}
                   </div>
                 </th>
 
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  <span>Type</span>
+                <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase relative">
+                  <div className="flex items-center gap-1" ref={typeRef}>
+                    <span>Type</span>
+
+                    <FiFilter
+                      className={`cursor-pointer ${
+                        typeFilter ? "text-blue-600" : "text-gray-500"
+                      }`}
+                      onClick={() => {
+                        setShowTypeDropdown(!showTypeDropdown);
+
+                        setShowCityDropdown(false);
+
+                        setShowOnlineDropdown(false);
+                      }}
+                    />
+                  </div>
+
+                  {showTypeDropdown && (
+                    <div className="absolute z-10 mt-1 bg-white border rounded shadow text-sm w-32">
+                      {["All", ...eventFilters.types].map((type) => (
+                        <div
+                          key={type}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+                          onMouseDown={() => {
+                            onTypeChange(type === "All" ? "" : type);
+
+                            setShowTypeDropdown(false);
+                          }}
+                        >
+                          <span>{type}</span>
+
+                          {type !== "All" && renderCheck(typeFilter === type)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </th>
 
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  <span>City</span>
+                <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase relative">
+                  <div className="flex items-center gap-1" ref={cityRef}>
+                    <span>City</span>
+
+                    <FiFilter
+                      className={`cursor-pointer ${
+                        cityFilter ? "text-blue-600" : "text-gray-500"
+                      }`}
+                      onClick={() => {
+                        setShowCityDropdown(!showCityDropdown);
+
+                        setShowTypeDropdown(false);
+
+                        setShowOnlineDropdown(false);
+                      }}
+                    />
+                  </div>
+
+                  {showCityDropdown && (
+                    <div className="absolute z-10 mt-1 bg-white border rounded shadow text-sm w-32">
+                      {["All", ...eventFilters.cities].map((city) => (
+                        <div
+                          key={city}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+                          onMouseDown={() => {
+                            onCityChange(city === "All" ? "" : city);
+
+                            setShowCityDropdown(false);
+                          }}
+                        >
+                          <span>{city}</span>
+
+                          {city !== "All" && renderCheck(cityFilter === city)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </th>
 
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  <span>Online</span>
+                <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase relative">
+                  <div className="flex items-center gap-1" ref={onlineRef}>
+                    <span>Online</span>
+
+                    <FiFilter
+                      className={`cursor-pointer ${
+                        isOnlineFilter ? "text-blue-600" : "text-gray-500"
+                      }`}
+                      onClick={() => {
+                        setShowOnlineDropdown(!showOnlineDropdown);
+
+                        setShowTypeDropdown(false);
+
+                        setShowCityDropdown(false);
+                      }}
+                    />
+                  </div>
+
+                  {showOnlineDropdown && (
+                    <div className="absolute z-10 mt-1 bg-white border rounded shadow text-sm w-32">
+                      {["All", ...eventFilters.isOnline].map((val) => (
+                        <div
+                          key={val}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+                          onMouseDown={() => {
+                            onIsOnlineChange(val === "All" ? "" : val);
+
+                            setShowOnlineDropdown(false);
+                          }}
+                        >
+                          <span>
+                            {val === "All"
+                              ? "All"
+                              : val == "true"
+                              ? "Yes"
+                              : "No"}
+                          </span>
+
+                          {val !== "All" && renderCheck(isOnlineFilter === val)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </th>
 
                 <th
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer select-none"
+                  className="px-4 py-3 text-left text-xs text-gray-500 uppercase cursor-pointer "
                   onClick={() => onSort("startDateTime")}
                 >
-                  <div className="flex items-center gap-1">
-                    Start Date/Time
+                  <div className="flex">
+                    Start DateTime
                     {sortField === "startDateTime" &&
                       (sortDirection === "asc" ? (
-                        <ChevronUp className="w-4 h-4 text-indigo-600" />
+                        <ChevronUp className="w-4 h-4" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-indigo-600" />
+                        <ChevronDown className="w-4 h-4" />
                       ))}
                   </div>
                 </th>
+
                 <th
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer select-none"
+                  className="px-4 py-3 text-left text-xs text-gray-500 uppercase cursor-pointer flex"
                   onClick={() => onSort("endDateTime")}
                 >
-                  <div className="flex items-center gap-1">
-                    End Date/Time
+                  <div className="flex">
+                    End DateTime
                     {sortField === "endDateTime" &&
                       (sortDirection === "asc" ? (
-                        <ChevronUp className="w-4 h-4 text-indigo-600" />
+                        <ChevronUp className="w-4 h-4" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-indigo-600" />
+                        <ChevronDown className="w-4 h-4" />
                       ))}
                   </div>
                 </th>
+
                 {hasAccess && (
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">
                     Actions
                   </th>
                 )}
               </tr>
             </thead>
 
-            <tbody className="bg-white divide-y divide-gray-100">
+            <tbody className="bg-white divide-y divide-gray-200">
               {events.length > 0 ? (
                 events.map((event) => (
-                  <tr key={event._id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-4 py-3 text-sm text-gray-800">{event.name}</td>
-                    <td className="px-4 py-3 text-sm text-gray-800 capitalize">
+                  <tr key={event._id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 text-sm">{event.name}</td>
+
+                    <td className="px-4 py-2 text-sm capitalize">
                       {event.type}
                     </td>
 
-                    <td className="px-4 py-3 text-sm text-gray-800">{event.city}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        ${event.isOnline ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}`}>
-                        {event.isOnline ? "Yes" : "No"}
-                      </span>
+                    <td className="px-4 py-2 text-sm">{event.city}</td>
+
+                    <td className="px-4 py-2 text-sm">
+                      {event.isOnline ? "Yes" : "No"}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-800">
+
+                    <td className="px-4 py-2 text-sm">
                       {new Date(event.startDateTime).toLocaleString()}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-800">
+
+                    <td className="px-4 py-2 text-sm">
                       {new Date(event.endDateTime).toLocaleString()}
                     </td>
+
                     {hasAccess && (
-                      <td className="px-4 py-3 text-sm">
-                        <div className="flex gap-3">
-                          <button
-                            className="text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
+                      <td className="px-4 py-2 text-sm">
+                        <div className="flex gap-2">
+                          <Edit2
+                            className="text-green-500 cursor-pointer w-4 h-4"
                             onClick={() => onAction("edit", event)}
-                            title="Edit Event"
-                          >
-                            <Edit2 className="w-5 h-5" />
-                          </button>
-                          <button
-                            className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                          />
+
+                          <Trash2
+                            className="text-red-500 cursor-pointer w-4 h-4"
                             onClick={() => onAction("delete", event)}
-                            title="Delete Event"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                          />
                         </div>
                       </td>
                     )}
@@ -385,8 +431,8 @@ const EventManagementTable: React.FC<Props> = ({
               ) : (
                 <tr>
                   <td
-                    colSpan={hasAccess ? 7 : 6} // Adjusted colspan based on hasAccess
-                    className="text-center py-10 text-gray-500 text-base font-medium"
+                    colSpan={7}
+                    className="text-center py-10 text-sm text-gray-400"
                   >
                     No events found.
                   </td>
@@ -397,13 +443,15 @@ const EventManagementTable: React.FC<Props> = ({
         </div>
 
         {/* Pagination */}
-        <div className="px-4 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
-          <div className="flex items-center gap-2 text-sm text-gray-700">
-            <span>Show</span>
+
+        <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-700">Show</span>
+
             <select
               value={itemsPerPage}
               onChange={(e) => setItemsPerPage(Number(e.target.value))}
-              className="border border-gray-300 rounded-md px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800"
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
             >
               {[10, 25, 50, 100].map((num) => (
                 <option key={num} value={num}>
@@ -411,14 +459,13 @@ const EventManagementTable: React.FC<Props> = ({
                 </option>
               ))}
             </select>
-            <span>entries</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-200"
+              className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
             >
               Previous
             </button>
@@ -428,12 +475,11 @@ const EventManagementTable: React.FC<Props> = ({
                 key={index}
                 onClick={() => typeof page === "number" && setCurrentPage(page)}
                 disabled={typeof page !== "number"}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200
-                  ${page === currentPage
-                    ? "bg-indigo-600 text-white shadow-md"
-                    : "border border-gray-300 text-gray-700 hover:bg-gray-100"
-                  }
-                  ${typeof page !== "number" ? "opacity-60 cursor-not-allowed" : ""}`}
+                className={`px-3 py-1 text-sm border rounded ${
+                  page === currentPage
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-gray-300 hover:bg-gray-50"
+                }`}
               >
                 {page}
               </button>
@@ -444,7 +490,7 @@ const EventManagementTable: React.FC<Props> = ({
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-200"
+              className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
             >
               Next
             </button>
@@ -454,6 +500,5 @@ const EventManagementTable: React.FC<Props> = ({
     </StatusWrapper>
   );
 };
-
 
 export default EventManagementTable;

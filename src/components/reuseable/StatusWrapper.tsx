@@ -10,18 +10,21 @@ type StatusWrapperProps = {
 const StatusWrapper: React.FC<StatusWrapperProps> = ({ loading, error, children, onRetry }) => {
   if (loading) {
     return (
-<div className="flex flex-col items-center justify-center min-h-[200px] gap-2">
-  <div className="animate-spin rounded-full h-8 w-8 border-[3px] border-black border-t-transparent"></div>
-  <span className="text-sm text-gray-700">Loading...</span>
-</div>
-
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+        <div className="flex flex-col items-center justify-center p-6 bg-white rounded-lg shadow-lg">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mb-4"></div>
+          <span className="text-gray-800 font-medium">Loading...</span>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[200px] text-red-600">
-        <p className="text-center mb-2">Something went wrong: {error.message || "Unknown error"}</p>
+        <p className="text-center mb-2">
+          Something went wrong: {error.message || "Unknown error"}
+        </p>
         {onRetry && (
           <button
             onClick={onRetry}
