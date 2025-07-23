@@ -1,6 +1,6 @@
 import { Route } from "react-router-dom";
 import { lazy } from "react";
-import ExternalResourcePage from "../pages/externalResource/externalResourcePage";
+const ExternalResourcePage = lazy(()=>import("../pages/externalResource/ExternalResourcePage")) 
 const Dashboard = lazy(() => import("../pages/Dashboard/Dashborad"));
 const UserManagment = lazy(
   () => import("../pages/UserManagemenet/UserManagment")
