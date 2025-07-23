@@ -6,11 +6,8 @@ const widGetService = {
       const response = await axiosInstance.get(`/widget/get`);
       return response.data;
     } catch (error) {
-      console.error("Error fetching widgets:", error);
-      return {
-        success: false,
-        message: "Failed to fetch widgets.",
-      };
+        throw error;
+   
     }
   },
 
@@ -19,11 +16,7 @@ const widGetService = {
       const response = await axiosInstance.post(`/widget/add-or-update`, data);
       return response.data;
     } catch (error) {
-      console.error("Error updating widgets:", error);
-      return {
-        success: false,
-        message: "Failed to update widgets.",
-      };
+     throw error;
     }
   }
 };
